@@ -1,0 +1,367 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes" ?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+      <title> on Sabayon Linux </title>
+    <link>https://next.sabayon.org/</link>
+    <language>en-US</language>
+    <author>Sabayon Linux</author>
+    <rights>Copyright (c) 2015, Sabayon Linux; all rights reserved.</rights>
+    <updated>Sat, 24 Jun 2017 00:00:00 UTC</updated>
+     
+    <item>
+      <title>AMDGPU and Linux growing pains</title>
+      <link>https://next.sabayon.org/article/AMDGPU_20170624/</link>
+      <pubDate>Sat, 24 Jun 2017 00:00:00 UTC</pubDate>
+      <author>Sabayon Linux</author>
+      <guid>https://next.sabayon.org/article/AMDGPU_20170624/</guid>
+      <description>
+
+&lt;p&gt;Some of you may be aware that FGRLX is dead and AMDGPU-PRO is the new
+proprietary (hybrid) driver. Some of you may still be using the radeon driver
+on AMD HD7XXX or R9 2XX (SI/CIK) video cards. This will most likely change
+in the future. &lt;a href=&#34;https://www.phoronix.com/scan.php?page=news_item&amp;amp;px=AMDGPU-Radeon-Switching-CIK&#34;&gt;Methods of switching are being discussed for 4.13 kernel&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&#34;amdgpu-pro:3d3aeca26636a50cc304c0cf8b36b176&#34;&gt;AMDGPU-PRO&lt;/h2&gt;
+
+&lt;p&gt;There have been a few questions I&amp;rsquo;ve noticed about having issues with HDMI
+audio over AMDGPU and/or people asking when AMDGPU-PRO will be be supported.
+I&amp;rsquo;m here to say AMDGPU-PRO isn&amp;rsquo;t coming to Gentoo/Sabayon, but for good reason.&lt;/p&gt;
+
+&lt;p&gt;Differences in AMDGPU and AMDGPU-PRO, once complete, will be minimal.
+AMDGPU-PRO is a &amp;ldquo;hybrid&amp;rdquo; driver meaning paritially open and closed source.
+Nearly everything in AMDGPU-PRO will be in AMDGPU open source. AMDGPU-PRO
+will be geared for supporting FirePRO cards in workstations and tested
+to support things such as solidworks and other business software.&lt;/p&gt;
+
+&lt;p&gt;Currently, there are some gaps in support. Where PRO supports Freesync, HDMI 2.0,
+HDMI Audio, OpenCL, etc., the AMDGPU driver will eventually attain all that
+through what is known as Display Code (DC) or DAL/HAL (Display/Hardware abstraction
+layer). The old DAL was just as it sounds, an abastraction layer. This
+could basically be summed up as a middle man layer that needed translation
+to be native or direct communication with the hardware. This is not allowed in
+the Linux Kernel and for good reason. We would want native and direct communication
+with hardware which is better for performance and being maintained and clean.&lt;/p&gt;
+
+&lt;p&gt;So why did AMD use a HAL? Well, the simplest reason was for sharing code.
+AMD&amp;rsquo;s software driver team is small. To save time, money, and effort, using
+a HAL was a simple method. They could write code that (mostly) worked for
+both Windows and Linux at the same time. So primary focus on Windows translated
+to some focus on Linux. Unfortunately, this doesn&amp;rsquo;t mean it worked well.
+We all remember how &amp;ldquo;lovely&amp;rdquo; fglrx was at times with broken crossfire support,
+broken eyefinity setup, poor kernel support, etc.&lt;/p&gt;
+
+&lt;p&gt;OK so small software dev team, HAL isn&amp;rsquo;t fully working in this instance,
+what is the solution? They decided to go open source. Great, shouldn&amp;rsquo;t this
+be simple? Short answer, No. They have to go over code with a fine tooth comb
+to make sure they aren&amp;rsquo;t releasing code they &amp;ldquo;don&amp;rsquo;t own&amp;rdquo; persay. Can&amp;rsquo;t exactly
+opensource DirectX related etc. After that, they also have to remove the HAL and recreate
+code from scratch to make a native/direct communication line for the Linux kernel.
+You could say this is essentially rewriting the driver from scratch. Its also
+more than just a display driver. You have Vulkan, OpenCL, HSA, VCE, UVD and the many
+other interfaces in which one may use the graphics card.&lt;/p&gt;
+
+&lt;p&gt;So when can we expect to see support for all items the display code brings us?
+Thats an excellent, but daunting question.
+AMD is about to meet the crossroads in which they either:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;Not support their latest graphics cards and APUs, VEGA and beyond, upon release&lt;/li&gt;
+&lt;li&gt;Push their team to get the DAL/HAL converted and submitted to the Linux kernel&lt;/li&gt;
+&lt;li&gt;ALL of the above&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;The pressure is on. They know they need support for their latest graphics chipsets, but
+anything VEGA and beyond requires the new display code to even work on Linux. I suspect
+we may not see working VEGA on AMDGPU (non-PRO), at least, until the end of the year.
+Thats cutting it close if AMD expects to sell raven ridge APUs at the end of this year.
+I could be proven wrong, but who knows? Kernel release cycles are consistantly about
+&lt;a href=&#34;https://kernelnewbies.org/LinuxVersions&#34;&gt;70 days apart&lt;/a&gt;, so 2 kernel releases could be Dec of this year.
+This massive change could be right on time to at least have some basics working.
+4.13-dev already is seeing tons of &lt;a href=&#34;https://git.kernel.org/pub/scm/linux/kernel/git/next/linux-next.git/commit/?h=next-20170623&amp;amp;id=04d4fb5fa63876d8e7cf67f2788aecfafc6a28a7&#34;&gt;raven code&lt;/a&gt; being dropped.&lt;/p&gt;
+
+&lt;h2 id=&#34;what-about-now-and-what-about-gamers:3d3aeca26636a50cc304c0cf8b36b176&#34;&gt;What about now and what about gamers?&lt;/h2&gt;
+
+&lt;p&gt;You&amp;rsquo;ll be happy to know you&amp;rsquo;re not forgotten. Mesa+AMDGPU has been gearing
+itself up for supporting gamers. In fact since the opensource community has
+gotten its hands on AMDGPU, its outperforming AMDGPU-PRO in several instances.
+Is the opensource driver perfect? No, far from it, but its growing by leaps
+and bounds at an accelerated rate. Even Valve has dedicated some resources
+to assisting in the growth of AMDGPU.&lt;/p&gt;
+
+&lt;p&gt;What about Vulkan support? Its there. AMDGPU has radv which is also growing
+quickly. radv is the radeon opensource vulkan project. Have you tried DOTA2
+with vulkan lately? It works. &lt;a href=&#34;https://www.phoronix.com/scan.php?page=article&amp;amp;item=amdgpu-new-1710&amp;amp;num=1&#34;&gt;See the benchmarks and gaming results here.&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Valve has also offered its services to help forward AMDGPU. &lt;a href=&#34;https://www.phoronix.com/scan.php?page=news_item&amp;amp;px=AMDGPU-PRO-VR-Linux&#34;&gt;Looking forward to VR.&lt;/a&gt;
+Virtual Reality is becoming big in gaming and soon Linux thanks to Valve.
+Valve has also shown support for &lt;a href=&#34;https://www.gamingonlinux.com/articles/steamos-updated-valve-drops-amdgpu-pro-for-mesa.9712/page=2&#34;&gt;MESA&lt;/a&gt; only setup.&lt;/p&gt;
+
+&lt;h2 id=&#34;so-how-does-this-affect-sabayon:3d3aeca26636a50cc304c0cf8b36b176&#34;&gt;So how does this affect Sabayon?&lt;/h2&gt;
+
+&lt;p&gt;Well, you&amp;rsquo;re going to notice the obvious, HDMI/DP Audio may not work yet,
+no freesync, no HDMI 2.0, no VEGA and beyond, Vulkan support may be hit
+and miss. If you&amp;rsquo;re using an HD7XXX or R9 2XX card, your drivers may change
+after a kernel upgrade resulting in different behavior. People looking
+for AMDGPU-PRO should and probably would abandon that thought considering
+the performance gaming-wise is better off on the open source driver.
+You may also have noticed the bump in MESA lately to 17.1? MESA may get
+bumped more frequently due to the constant development for AMDGPU.&lt;/p&gt;
+
+&lt;p&gt;We understand you may feel some frustration in this time awaiting fixes,
+but please be aware this issue is affecting all Linux distributions.
+Its the typical growing pains of Linux when a large change takes place.
+We are keeping on top of it and trying to stay up-to-date bringing fixes,
+and performance boosts, but maintaining stability.&lt;/p&gt;
+
+&lt;p&gt;We hope you&amp;rsquo;re enjoying Sabayon just as much as we do!
+-Frosty&lt;/p&gt;
+
+&lt;h4 id=&#34;have-you-considered-donating-yet-help-us-donate-donate-today:3d3aeca26636a50cc304c0cf8b36b176&#34;&gt;Have you considered donating yet? Help us! &lt;a href=&#34;https://next.sabayon.org/donate&#34;&gt;Donate&lt;/a&gt; today!&lt;/h4&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Special Release: Sabayon 16.06 for ARM</title>
+      <link>https://next.sabayon.org/article/special-release-sabayon-1606-arm/</link>
+      <pubDate>Sun, 29 May 2016 00:00:00 UTC</pubDate>
+      <author>Sabayon Linux</author>
+      <guid>https://next.sabayon.org/article/special-release-sabayon-1606-arm/</guid>
+      <description>&lt;p&gt;&lt;img width=&#34;300px&#34; src=&#34;http://i.imgur.com/JzlQA4w.jpg&#34;&gt;&lt;/p&gt;
+
+&lt;p&gt;Dear users,&lt;/p&gt;
+
+&lt;p&gt;I&amp;rsquo;m glad to announce the new Sabayon 16.06 RaspberryPi image. This month you can enjoy the new Media Center release which features Kodi optimized for the Raspberry Pi model 2 and 3.&lt;/p&gt;
+
+&lt;p&gt;To celebrate that, we also upgraded the Base image, which comes now with the latest packages from the repositories.
+The image comes out of the box with the latest 4.4.y kernel and with the &lt;a href=&#34;https://github.com/Hexxeh/rpi-update#rpi-update&#34;&gt;rpi-update&lt;/a&gt;
+The Media Center image is working as-is Out-of-the-Box and will also perform auto-upgrades automatically on your behalf. And if your TV is modern enough, you can control Kodi also from your TV remote (yay!).&lt;/p&gt;
+
+&lt;p&gt;The image on boot will automatically connect to the network, and you can ssh with the following credentials:&lt;/p&gt;
+
+&lt;p&gt;username: sabayon password: sabayon&lt;/p&gt;
+
+&lt;p&gt;The user is already sudo enabled, but the root user is also available:&lt;/p&gt;
+
+&lt;p&gt;username: root password: root&lt;/p&gt;
+
+&lt;p&gt;The credentials are valid for both the MediaCenter and Base editions. You can use nmtui, the command line utility for NetworkManager to manage the network connections, included wifi.&lt;/p&gt;
+
+&lt;p&gt;You can download the image from &lt;a href=&#34;http://dl.sabayon.org/iso/monthly/&#34;&gt;our mirrors&lt;/a&gt;, you can find it under the iso/monthly/ directory:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;[Sabayon_Linux_16.06_armv7l_RPi_MediaCenter_8GB.img.xz](http://dl.sabayon.org/iso/monthly/Sabayon_Linux_16.06_armv7l_RPi_MediaCenter_8GB.img.xz)
+[Sabayon_Linux_16.06_armv7l_RPi_Base_8GB.img.xz](http://dl.sabayon.org/iso/monthly/Sabayon_Linux_16.06_armv7l_RPi_Base_8GB.img.xz)
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Or you can use the &lt;a href=&#34;http://mirror1.mirror.garr.it/mirrors/sabayonlinux/iso/monthly/Sabayon_Linux_16.06_armv7l_RPi_MediaCenter_8GB.img.xz&#34;&gt;italian mirror&lt;/a&gt; (which already have the image available).&lt;/p&gt;
+
+&lt;p&gt;To write the image to the sdcard, you can just use xzcat:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;xzcat Sabayon_Linux_16.06_armv7l_RPi_Base_8GB.img.xz &amp;gt; /dev/mmcblk0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or you can uncompress and use dd:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;unxz Sabayon_Linux_16.06_armv7l_RPi_Base_8GB.img.xz
+dd if=Sabayon_Linux_16.06_armv7l_RPi_Base_8GB.img of=/dev/mmcblk0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;Of course replace /dev/mmcblk0 with your device, and the image name with the one you picked up.&lt;/p&gt;
+
+&lt;p&gt;Apart from what you may expect, we won&amp;rsquo;t release amd64 images this month: we have been slowed down by recent upstream bumps that broke our Calamares Installer, making a sucessfully installation an operation mostly impossible. Also because of that, we are thinking to change the release schedule, and provide stable and fixed in time releases. Don&amp;rsquo;t worry! This does not mean that we will stop building daily images, we will never do that!  We are just considering the idea of slowing down our release model (maybe every two months) to give you the best experience and give us the ability to test the new features and enhancements.&lt;/p&gt;
+
+&lt;p&gt;Many thanks to Joost (joost_op), Ben (optiz0r) and of course Fabio (lxnay) for testing and for their support thru the development of the RPi image, and Tom Ruis for the illustration on the top of the article (available in the full size  &lt;a href=&#34;http://i.imgur.com/Q5COMf1.jpg&#34;&gt;here&lt;/a&gt;  and  &lt;a href=&#34;http://i.imgur.com/JzlQA4w.jpg&#34;&gt;here&lt;/a&gt; )!  Nothing of that would have been possible without you and our community!&lt;/p&gt;
+
+&lt;p&gt;We have already ~2000 packages in the ARMhfp repository, including Docker already cutted for ARM boards (yay!), GNOME, XFCE, LXDE and bunch of packages you might find interesting.
+ROS framework - The robotics framework, Cacti, Kodi, LAMP stack, just to name a few that are already available on the main repository!
+For package requests, head over our &lt;a href=&#34;https://bugs.sabayon.org/&#34;&gt;bugzilla&lt;/a&gt;.
+If you appreciate our efforts towards the ARM architecture, please consider to &lt;a href=&#34;https://www.sabayon.org/donate&#34;&gt;donate us&lt;/a&gt; either hardware or money to buy it!&lt;/p&gt;
+
+&lt;p&gt;Enjoy,
+Ettore Di Giacinto (mudler)&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>ARM meet Sabayon, Sabayon meet ARM.</title>
+      <link>https://next.sabayon.org/article/arm-meet-sabayon-sabayon-meet-arm/</link>
+      <pubDate>Sat, 30 Apr 2016 00:00:00 UTC</pubDate>
+      <author>Sabayon Linux</author>
+      <guid>https://next.sabayon.org/article/arm-meet-sabayon-sabayon-meet-arm/</guid>
+      <description>&lt;p&gt;We are  glad to announce the immediate availability of Sabayon ARM (hfp) for Raspberry Pi 2 and 3.&lt;/p&gt;
+
+&lt;p&gt;This is our first step towards ARM support, the package release scheduling will be different from our amd64 variant. Updates will be on a period of 6 months, except for security or special updates.&lt;/p&gt;
+
+&lt;p&gt;The image comes out of the box with the latest 4.4.y kernel and with the rpi-update tool that can be used to update kernel and firmware.&lt;/p&gt;
+
+&lt;p&gt;The Username/Password is sabayon:sabayon, and sudo is already set-up.  Just flash the image with dd, and attach it to a network (it will gets an ip automatically from your network).&lt;/p&gt;
+
+&lt;p&gt;The OS is set to automatically boot and start eth0 and sshd (so you can connect to it via ssh).&lt;/p&gt;
+
+&lt;p&gt;The images will be soon available on all the Sabayon mirrors. For now you can download it from the official TOP-IX italian mirror:&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://mirror.it.sabayon.org/iso/monthly/Sabayon_Linux_16_armv7l_RPi_Base_8GB.img.xz&#34;&gt;http://mirror.it.sabayon.org/iso/monthly/Sabayon_Linux_16_armv7l_RPi_Base_8GB.img.xz&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;http://mirror.it.sabayon.org/iso/monthly/Sabayon_Linux_16_armv7l_RPi_Base_8GB.img.xz.md5&#34;&gt;http://mirror.it.sabayon.org/iso/monthly/Sabayon_Linux_16_armv7l_RPi_Base_8GB.img.xz.md5&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;you can however browse our mirror list the image could be found under the iso/monthly/ directory.&lt;/p&gt;
+
+&lt;p&gt;To write the image to the sdcard, you can just use xzcat:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;xzcat Sabayon_Linux_16_armv7l_RPi_Base_8GB.img.xz &amp;gt; /dev/mmcblk0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;or you can uncompress and use dd:&lt;/p&gt;
+
+&lt;pre&gt;&lt;code&gt;unxz Sabayon_Linux_16_armv7l_RPi_Base_8GB.img.xz
+dd if=Sabayon_Linux_16_armv7l_RPi_Base_8GB.img of=/dev/mmcblk0
+&lt;/code&gt;&lt;/pre&gt;
+
+&lt;p&gt;We have already ~2000 packages in the ARMhfp repository, including Docker already cutted for ARM boards (yay!), GNOME, XFCE, LXDE and bunch of packages you might find interesting.&lt;/p&gt;
+
+&lt;p&gt;ROS framework - The robotics framework, Cacti, Kodi, LAMP stack, just to name a few that are already available on the main repository!&lt;/p&gt;
+
+&lt;p&gt;For package requests, head over our bugzilla.&lt;/p&gt;
+
+&lt;p&gt;If you appreciate our efforts towards the ARM architecture, please consider to donate us either hardware or money to buy it!&lt;/p&gt;
+
+&lt;p&gt;Enjoy!&lt;/p&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>Sabayon Linux development in 2015</title>
+      <link>https://next.sabayon.org/article/sabayon_2015/</link>
+      <pubDate>Mon, 17 Aug 2015 00:00:00 UTC</pubDate>
+      <author>Sabayon Linux</author>
+      <guid>https://next.sabayon.org/article/sabayon_2015/</guid>
+      <description>&lt;p&gt;In case you didn’t notice, last months some major changes have been made to
+the Sabayon Linux project.
+Most are pure technical changes in the project management
+that the end users will never notice. Here is a short log.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Docker based images&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;These are forked directly from a Gentoo stage3 docker image.
+The result is a very clean chroot that is even closer to Gentoo.
+Our docker pulls in the stage3, adds Sabayon overlay,
+installs Entropy to a point where it can run.
+Then it checks the Portage database to list what packages are installed and
+replaces them with the packages from Entropy. (Ain’t that cool?).
+Now we can keep our minimal chroot current and easy make changes
+whenever we want. The docker base image is then being “squashed”
+so we can feed it as an image to our Molecule™ script that
+will build our iso images for us.&lt;/p&gt;
+
+&lt;p&gt;With this move we also made the creation of spins more accessible to developers!
+Go fork us!&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;MATE spin&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The MATE spin will be brought back as an “official” spin.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Artwork&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;The Sabayon artwork is now completely modular.
+Whoever wants to create his own spin (or distro based on Entropy)
+can now simply fork these artwork ebuilds and
+package them in their own Entropy™ repository.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Installer&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;We replaced Anaconda installer with Calamares.
+Many users complained about buggy Anaconda and
+the Calamares project was designed for distro’s like Sabayon Linux.
+At the moment Calamares still lacks some features, like disk-encryption,
+but we expect them to be implemented sooner or later.
+Obviously Calamares is fully theme-able and
+all the artwork is in a separate artwork package.
+The installer configuration is shipped with the
+app-misc/calamares-sabayon-base-modules package.&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://calamares.io/&#34;&gt;https://calamares.io/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Plasma desktop 5&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Not officially supported yet but you can now add a community repository and
+install it.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;New developers&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;a href=&#34;https://plus.google.com/u/0/+EttoreDiGiacinto/posts&#34;&gt;Ettore Di Giacinto&lt;/a&gt; and
+&lt;a href=&#34;https://plus.google.com/u/0/+FrancescoFerro26/posts&#34;&gt;Francesco Ferro&lt;/a&gt;
+joined the Sabayon Linux development team.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;ARM&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;We are planning to bring back ARM support.&lt;/p&gt;
+
+&lt;p&gt;&lt;em&gt;So as you can see we’ve been busy little bees getting all this done.&lt;/em&gt;&lt;/p&gt;
+
+&lt;p&gt;You can find us here:&lt;/p&gt;
+
+&lt;ul&gt;
+&lt;li&gt;&lt;a href=&#34;https://www.facebook.com/groups/36125411841&#34;&gt;Join us on Facebook&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;https://plus.google.com/+sabayon&#34;&gt;Join us on Google+&lt;/a&gt;&lt;/li&gt;
+&lt;li&gt;&lt;a href=&#34;http://www.sabayon.org/donate&#34;&gt;Donate to Sabayon!&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+</description>
+    </item>
+    
+    <item>
+      <title>New version</title>
+      <link>https://next.sabayon.org/article/new-version/</link>
+      <pubDate>Mon, 01 Jun 2015 00:00:00 UTC</pubDate>
+      <author>Sabayon Linux</author>
+      <guid>https://next.sabayon.org/article/new-version/</guid>
+      <description>
+
+&lt;p&gt;&lt;strong&gt;New version of Sabayon is out! Install it or do equo update, or something. Or not.&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;Sabayon 15.06 is a modern and easy to use Linux distribution based on Gentoo, following an extreme, yet reliable, rolling release model.&lt;/p&gt;
+
+&lt;p&gt;This is a monthly release generated, tested and published to mirrors by our build servers containing the latest and greatest collection of software available in the Entropy repositories.&lt;/p&gt;
+
+&lt;p&gt;In this release we focused also our attention on a big restyle. Yes you heard it well.&lt;/p&gt;
+
+&lt;h2 id=&#34;psst-you-can-t-be-serious:47eac90375bb1192a5ba399cfa1f3088&#34;&gt;Psst! You can’t be serious&lt;/h2&gt;
+
+&lt;p&gt;We are. We changed a lot of thing under the hood, and with this release we wanted to show them up also on the surface.&lt;/p&gt;
+
+&lt;p&gt;All the flavors received the deserved love.&lt;/p&gt;
+
+&lt;p&gt;We moved to 4.0 kernel, gcc 4.9.2, systemd 216, x265 support, primus for high performance graphics on optimus card, prepared Entropy for Plasma 5, libav 11.3, Kodi (the new name of XBMC) : the complete ChangeLog files related to this release are available on our mirrors. We have some very exciting improvements in the pipeline.&lt;/p&gt;
+
+&lt;p&gt;The list of packages included in each Sabayon flavor is available inside “.pkglist” files. If you want to have a look at what’s inside our repositories, just go to our packages website.&lt;/p&gt;
+
+&lt;p&gt;Please read on to know where to find the images and their torrent files on our mirrors.&lt;/p&gt;
+
+&lt;h2 id=&#34;fresh-software-at-all-times:47eac90375bb1192a5ba399cfa1f3088&#34;&gt;Fresh software, at all times&lt;/h2&gt;
+
+&lt;p&gt;Sabayon developers have the funny habit of packaging all the latest stuff that is in the Gentoo repositories and make it available as soon as possible to our users. If you are looking for the latest KDE, GNOME or LibreOffice, the chance that “it’s all in the repos already” are very high. We keep rolling &lt;sup&gt;24&lt;/sup&gt;&amp;frasl;&lt;sub&gt;7&lt;/sub&gt;, 365 days a year, because old software get us instantly bored.&lt;/p&gt;
+
+&lt;h2 id=&#34;available-releases:47eac90375bb1192a5ba399cfa1f3088&#34;&gt;Available releases&lt;/h2&gt;
+
+&lt;p&gt;We offer only 64bit releases.&lt;/p&gt;
+
+&lt;p&gt;Anyway you are free to choose between the wonderful minimalism of GNOME, the eyecandy of KDE or the old fart called Xfce. If you are the kind of person who just needs Fluxbox/Openbox/i3 or whatever else, just get the Minimal image and you won’t be hit by the “OMG candies” bloat that is in the other images.&lt;/p&gt;
+
+&lt;h2 id=&#34;steam-big-picture-mode:47eac90375bb1192a5ba399cfa1f3088&#34;&gt;Steam Big Picture mode&lt;/h2&gt;
+
+&lt;p&gt;Following our well appreciated Media Center mode that lets you convert your computer into an XBMC-based media center, we’re now offering a way to get away from the boring Christmas movies and start doing something more serious: gaming, on Linux. Our KDE and GNOME images come with Steam preinstalled and ready to be launched. In addition to this, a new boot and install mode called “Steam Big Picture” (formerly and improperly known as SteamBox mode) is now available letting you turn your computer into a real Linux gaming console, no matter if it is NVIDIA, AMD or Intel GPU-based.&lt;/p&gt;
+
+&lt;h2 id=&#34;binary-vs-source-package-manager:47eac90375bb1192a5ba399cfa1f3088&#34;&gt;Binary vs Source Package Manager&lt;/h2&gt;
+
+&lt;p&gt;It’s up to you whether turn a newly Sabayon installation into a geeky Gentoo ~arch system or just camp on the lazy side and enjoy the power of our binary, simple to use Applications Manager (a.k.a. Rigo) – or command line tool called equo. With Sabayon you are really in control of your system the way you really want.&lt;/p&gt;
+
+&lt;h2 id=&#34;native-nvidia-and-amd-gpu-drivers-support:47eac90375bb1192a5ba399cfa1f3088&#34;&gt;Native NVIDIA and AMD GPU drivers support&lt;/h2&gt;
+
+&lt;p&gt;All our releases natively support the latest and greatest GPU hardware from NVIDIA through the proprietary driver. Whether you want to enjoy your Linux rig for gaming or video playback, you can. For AMD hardware though, we default to the Open Source implementation for the supported cards. Make sure to pass “nomodeset” to the boot command line to force the proprietary drivers to be used instead, head over the wiki for more details.&lt;/p&gt;
+
+&lt;h2 id=&#34;lts-linux-kernels-3-10-3-12-offered:47eac90375bb1192a5ba399cfa1f3088&#34;&gt;LTS Linux Kernels, 3.10, 3.12 offered&lt;/h2&gt;
+
+&lt;p&gt;We are now tracking the 3.10, 3.12, 3.14 Long Term Stable Linux kernels, offering (almost) same-day updates to them. If you are using Sabayon in a server environment, you will surely welcome this. However, if you’re using Sabayon on your laptop, desktop workstation, switching between kernels or just moving to a new version has become a no-brainer operation through Rigo: just go to the preferences menu, select the kernel menu (LTS and regular kernels are listed in separate menus), pick a kernel and click “Install”. Rigo will take care of updating external modules in a reliable and safe way on your behalf.&lt;/p&gt;
+</description>
+    </item>
+    
+  </channel>
+</rss>
